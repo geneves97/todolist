@@ -1,9 +1,11 @@
 package br.com.georgeneves.todolist.filter;
 
+import br.com.georgeneves.todolist.user.IUserRepository;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -12,6 +14,9 @@ import java.util.Base64;
 
 @Component
 public class FilterTaskAuth extends OncePerRequestFilter {
+
+    @Autowired
+    private IUserRepository userRepository;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
@@ -30,10 +35,15 @@ public class FilterTaskAuth extends OncePerRequestFilter {
         String username = credentials[0];
         String password = credentials[1];
 
-        System.out.println("Autorization");
-        System.out.println(username);
-        System.out.println(password);
+        // Validar se o usuário existe
 
-        filterChain.doFilter(request,response);
+        var user = this.userRepository.findByUsername(username);
+        if(user == null){
+            response.sendError(401);
+        } else {
+            //Validar senha
+
+            filterChain.doFilter(request,response);
+        }
     }
 }
