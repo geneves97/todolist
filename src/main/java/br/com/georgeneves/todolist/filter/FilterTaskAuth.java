@@ -1,5 +1,6 @@
 package br.com.georgeneves.todolist.filter;
 
+import at.favre.lib.crypto.bcrypt.BCrypt;
 import br.com.georgeneves.todolist.user.IUserRepository;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -42,8 +43,12 @@ public class FilterTaskAuth extends OncePerRequestFilter {
             response.sendError(401);
         } else {
             //Validar senha
-
-            filterChain.doFilter(request,response);
+            var passwordVerify = BCrypt.verifyer().verify(password.toCharArray(), user.getPassword());
+            if (passwordVerify.verified) {
+                filterChain.doFilter(request,response);
+            } else{
+                response.sendError(401);
+            }
         }
     }
 }
