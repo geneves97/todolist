@@ -49,6 +49,11 @@ public class TaskController {
     public ResponseEntity update(@RequestBody TaskModel taskModel, @PathVariable UUID id, HttpServletRequest request) {
         var task = this.taskRepository.findById(id).orElse(null);
 
+        if(task == null){
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body("Tarefa não encontrada");
+        }
+
         var idUser = request.getAttribute("idUser");
 
         if(!task.getIdUser().equals(idUser)){
